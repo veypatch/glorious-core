@@ -1,0 +1,23 @@
+pkgbase = glorious-core
+	pkgdesc = Glorious CORE keyboard and mice configuration software
+	pkgver = 2.1.17
+	pkgrel = 1
+	url = https://www.gloriousgaming.com/
+	install = glorious-core.install
+	arch = x86_64
+	license = custom
+	makedepends = innoextract
+	makedepends = unzip
+	depends = wine
+	options = !strip
+	source = GloriousCORE_2.1.17_Setup.zip::https://gloriouscore.nyc3.digitaloceanspaces.com/CORE2/app/GloriousCORE_2.1.17_Setup.zip
+	source = LICENSE
+	source = glorious-core
+	source = glorious-core.desktop
+	source = 99-gmmk3.rules
+	sha256sums = 9202873ee95abf5014df6825be297632c8aba7eff1d201a2cdd4b82f4d3d18ab
+	sha256sums = 4e62cdc8876ed5103892d06e640f5742af0dfba0db32666b00f2747a636adc51
+	sha256sums = be748fe4b439ea46fd23d344e806e1c8c63b35f49a0f5cb9e20a9cb497eb951c
+	sha256sums = bd8fca819c8f104acbd4664cde357e25e42f712bed41358e0722451e2465199e
+
+pkgname = glorious-core

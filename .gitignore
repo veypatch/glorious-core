@@ -1,0 +1,14 @@
+*
+!.gitignore
+!PKGBUILD
+!.SRCINFO
+!LICENSE
+!glorious-core
+!glorious-core.desktop
+!glorious-core.install
+!glorious-core.png
+
+*.pkg.tar.zst
+*.pkg.tar.zst.sig
+src/
+pkg/

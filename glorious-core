@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export WINEPREFIX="${WINEPREFIX:-$HOME/.glorious-core}"
+
+cd /usr/share/glorious-core || exit 1
+
+wine "Glorious Core.exe" "$@" >/dev/null 2>&1 &
