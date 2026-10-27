@@ -1,71 +1,72 @@
 # Maintainer: Your Name <you@example.com>
 
 pkgname=glorious-core
-pkgver=2.1.17
+pkgver=2.1.23
 pkgrel=1
-pkgdesc="Glorious CORE keyboard and mice configuration software"
+pkgdesc="Glorious CORE keyboard and mice configuration software (runs via Wine)"
 arch=('x86_64')
 url="https://www.gloriousgaming.com/"
-license=('custom')
 install=glorious-core.install
-depends=('wine')
-makedepends=('innoextract' 'unzip')
+license=('LicenseRef-custom')
+depends=('wine' 'hicolor-icon-theme')
+# Upstream's installer uses a newer Inno Setup than the official innoextract (1.9) supports
+makedepends=('innoextract-crazy-max' 'unzip' 'icoutils')
+optdepends=('winetricks: fixes for rendering/runtime issues in the Wine prefix')
+options=('!strip' '!debug')
+noextract=("GloriousCORE_${pkgver}_Setup.zip")
 source=(
     "GloriousCORE_${pkgver}_Setup.zip::https://gloriouscore.nyc3.digitaloceanspaces.com/CORE2/app/GloriousCORE_${pkgver}_Setup.zip"
-    LICENSE
+    "LICENSE"
     "glorious-core"
     "glorious-core.desktop"
-    "99-gmmk3.rules"
+    "70-glorious.rules"
 )
-sha256sums=('9202873ee95abf5014df6825be297632c8aba7eff1d201a2cdd4b82f4d3d18ab'
-            '4e62cdc8876ed5103892d06e640f5742af0dfba0db32666b00f2747a636adc51'
-            'be748fe4b439ea46fd23d344e806e1c8c63b35f49a0f5cb9e20a9cb497eb951c'
-            'bd8fca819c8f104acbd4664cde357e25e42f712bed41358e0722451e2465199e')
-
-options=(!strip)
+sha256sums=('edfbd8d3fc778c26f24130527a2b188a694b8154ae3476c5105f4513db415aba'
+            '84ee84c3c7977e215e5e5afdc22468d6115bd427eecc8b5f1bf6365cfae6163c'
+            'e923312aa4b8b1b5a5004d563beb8d8d643c989f21d7efd4fffbc3d59e29968a'
+            '0108a9504928c1658f058d04b77cd00da63dc100affcde5003e8f049eb034e93'
+            '321fd28620e6fee8bdc8e3e663afbd4acd3fde4a3e0d14f2e1962dbff3307bbd')
 
 prepare() {
     cd "$srcdir"
 
     unzip -o "GloriousCORE_${pkgver}_Setup.zip"
 
-    rm -rf extract
+    rm -rf extract icons
+    innoextract --output-dir extract "GloriousCORE_${pkgver}_Setup.exe"
 
-    innoextract \
-        --output-dir extract \
-        "GloriousCORE_${pkgver}_Setup.exe"
+    # Convert the Windows icon to PNGs for the hicolor theme
+    mkdir icons
+    icotool -x -o icons extract/app/icon.ico
 }
 
 package() {
-    install -dm755 "$pkgdir/usr/share/glorious-core"
+    cd "$srcdir"
 
-    cp -a extract/app/. \
-        "$pkgdir/usr/share/glorious-core"
+    local _dest="$pkgdir/usr/share/glorious-core"
 
-    rm -rf "$pkgdir/usr/share/glorious-core/Driver"
+    # Application files
+    install -dm755 "$_dest"
+    cp -a extract/app/. "$_dest"
 
-    rm -f \
-    "$pkgdir/usr/share/glorious-core/resources/public/v3-updater/"*.exe
+    # Windows-only driver installers and the Windows self-updater
+    rm -rf "$_dest/Driver"
+    rm -f "$_dest/resources/public/v3-updater/"*.exe
 
-    # Windows-only drivers
-    rm -rf "$pkgdir/usr/share/glorious-core/Driver"
+    chmod 755 "$_dest/Glorious Core.exe"
 
-    chmod +x \
-        "$pkgdir/usr/share/glorious-core/Glorious Core.exe"
+    # Launcher, desktop entry, udev rules, license
+    install -Dm755 glorious-core "$pkgdir/usr/bin/glorious-core"
+    install -Dm644 glorious-core.desktop "$pkgdir/usr/share/applications/glorious-core.desktop"
+    install -Dm644 70-glorious.rules "$pkgdir/usr/lib/udev/rules.d/70-glorious.rules"
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 
-    install -Dm755 \
-        "$srcdir/glorious-core" \
-        "$pkgdir/usr/bin/glorious-core"
-
-    install -Dm644 \
-        "$srcdir/glorious-core.desktop" \
-        "$pkgdir/usr/share/applications/glorious-core.desktop"
-
-    install -Dm644 \
-        "$srcdir/99-gmmk3.rules" \
-        "$pkgdir/usr/lib/udev/rules.d/99-gmmk3.rules"
-
-    install -Dm644 \
-        "$pkgdir/usr/share/glorious-core/icon.ico" \
-        "$pkgdir/usr/share/pixmaps/glorious-core.ico"
+    # Icons (icotool names files like icon_1_256x256x32.png)
+    local f size
+    for f in icons/*.png; do
+        size=$(grep -oE '[0-9]+x[0-9]+' <<< "${f##*/}" | head -n1)
+        [[ -n $size ]] || continue
+        install -Dm644 "$f" \
+            "$pkgdir/usr/share/icons/hicolor/$size/apps/glorious-core.png"
+    done
 }

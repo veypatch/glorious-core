@@ -6,7 +6,7 @@
 !glorious-core
 !glorious-core.desktop
 !glorious-core.install
-!glorious-core.png
+!70-glorious.rules
 
 *.pkg.tar.zst
 *.pkg.tar.zst.sig

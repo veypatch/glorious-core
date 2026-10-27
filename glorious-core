@@ -1,7 +1,15 @@
-#!/bin/bash
+#!/bin/sh
+export WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/glorious-core/prefix"
+export WINEARCH=win64
+export WINEDEBUG="${WINEDEBUG:--all}"
+export WINEDLLOVERRIDES="${WINEDLLOVERRIDES:-winemenubuilder.exe=d}"
 
-export WINEPREFIX="${WINEPREFIX:-$HOME/.glorious-core}"
-
+mkdir -p "$WINEPREFIX"
 cd /usr/share/glorious-core || exit 1
 
-wine "Glorious Core.exe" "$@" >/dev/null 2>&1 &
+# Detach from a missing/closed tty: the app's console output would otherwise crash it
+if [ ! -t 1 ]; then
+    exec >/dev/null 2>&1 </dev/null
+fi
+
+exec wine "Glorious Core.exe" "$@"

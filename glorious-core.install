@@ -1,16 +1,5 @@
-post_install() {
-    udevadm control --reload-rules >/dev/null 2>&1
-    udevadm trigger >/dev/null 2>&1 || true
-}
-
-post_upgrade() {
-    post_install
-}
-
-pre_remove() {
-    echo "============================================="
-    echo "The Wine prefix was left at ~/.glorious-core."
-    echo "Remove it manually with:"
-    echo "  rm -rf ~/.glorious-core"
-    echo "============================================="
+post_remove() {
+    echo "The Wine prefix was left in each user's home directory."
+    echo "To remove it, run as your user:"
+    echo "  rm -rf ~/.local/share/glorious-core"
 }

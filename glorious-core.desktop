@@ -6,5 +6,4 @@ Exec=glorious-core
 Icon=glorious-core
 Categories=Settings;HardwareSettings;
 Terminal=false
-StartupNotify=true
-StartupWMClass=Glorious Core
+StartupWMClass=glorious core.exe
